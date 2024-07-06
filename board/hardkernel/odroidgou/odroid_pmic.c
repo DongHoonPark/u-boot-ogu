@@ -141,9 +141,20 @@ static int rk817_i2c_write(int32_t command, uint8_t val)
 void rk817_shutdown(void)
 {
 	/* RK817 LDO disable */
-	rk817_i2c_write(RK817_POWER_EN1, 0xf0);
-	rk817_i2c_write(RK817_POWER_EN2, 0xf0);
-	rk817_i2c_write(RK817_POWER_EN3, 0xf0);
+	// Previous shutdown scheme
+	// rk817_i2c_write(RK817_POWER_EN1, 0xf0);
+	// rk817_i2c_write(RK817_POWER_EN2, 0xf0);
+	// rk817_i2c_write(RK817_POWER_EN3, 0xf0);
+	
+	uint8_t RK817_SLP_POL = 0x01 << 5;
+	uint8_t RK817_DEV_OFF = 0x01 << 0;
+	rk817_i2c_write(RK817_SYS_CFG(3), RK817_SLP_POL | RK817_DEV_OFF);
+}
+
+void rk818_shutdown(void)
+{
+	uint8_t RK818_DEV_OFF = 0x01 << 0;
+	rk818_i2c_write(RK818_DEVCTRL_REG, RK818_DEV_OFF);
 }
 
 int odroid_check_pwron_src(void)
@@ -298,7 +309,7 @@ void odroid_pmic_init(void)
 int do_poweroff(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	rk817_shutdown();
-	pmic_rk818_shut_down();
+	rk818_shutdown();
 	return (0);
 }
 
